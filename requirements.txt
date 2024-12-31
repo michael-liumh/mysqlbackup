@@ -1,0 +1,7 @@
+ConfigArgParse==1.7
+delegator.py==0.1.1
+loguru==0.7.3
+pexpect==4.9.0
+psutil==6.1.1
+ptyprocess==0.7.0
+PyYAML==6.0.2

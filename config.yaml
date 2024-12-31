@@ -1,0 +1,20 @@
+host: localhost
+port: 3306
+socket: /opt/mysql3306/mysql3306.sock
+user: root
+password:
+no-pass: false
+# if you set login-path, we will use login-path for backup (except for mydumper)
+login-path:
+mysql-config: /etc/my.cnf
+# choices: mysqldump, mysqlpump, xtrabackup, mydumper
+tool: mysqlpump
+backup-dir: process_backups
+# save into .logs (auto create)
+backup-log: process_mysql_backup.log
+# default: <host_ip>_<port>_<tool>_<backup_time>.sql.lz4 (mysqldump, mysqlpump)
+# default: <host_ip>_<port>_<tool>_<backup_time>.[fullback|incremental].xb (xtrabackup)
+# default: <host_ip>_<port>_<tool>_<backup_time>.stream (mydumper)
+backup-file:
+# you can add more args, all args starts with --<args name> that you can add.
+# <arg name>: value
