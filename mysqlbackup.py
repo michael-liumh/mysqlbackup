@@ -303,7 +303,8 @@ def pre_backup(args):
     check_command('lz4')
 
     # check backup process if exists
-    program = f"{args.tool.name} \\-\\-host {args.host} \\-\\-port {args.port}"
+    connect_args = get_connect_args(args)
+    program = command = f'{args.tool.name} {connect_args} {args.extra}'
     if platform.system() == "Windows":
         command = f"tasklist -v | findstr %{program}%"
     else:
