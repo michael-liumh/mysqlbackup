@@ -9,7 +9,7 @@ login-path:
 mysql-config: /etc/my.cnf
 # choices: mysqldump, mysqlpump, xtrabackup, mydumper
 tool: mysqlpump
-backup-dir: process_backups
+backup-dir: /data/backups/mysql3306
 # save into .logs (auto create)
 backup-log: process_mysql_backup.log
 # default: <host_ip>_<port>_<tool>_<backup_time>.sql.lz4 (mysqldump, mysqlpump)
