@@ -2,7 +2,7 @@ host: localhost
 port: 3306
 socket: /opt/mysql3306/mysql3306.sock
 user: root
-password:
+password: 123qwe
 no-pass: false
 # if you set login-path, we will use login-path for backup (except for mydumper)
 login-path:
