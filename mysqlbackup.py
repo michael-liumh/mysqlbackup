@@ -5,6 +5,7 @@
 import configargparse
 import getpass
 import sys
+import platform
 import time
 import delegator
 import psutil
@@ -23,18 +24,30 @@ logger.add(log_file, rotation='100MB', colorize=True, retention=10, compression=
 def parse_mysql_args():
     """Parse args to connect to MySQL"""
 
+    if platform.system() == "Windows":
+        config_file_parser_class = configargparse.DefaultConfigFileParser
+        default_config_files = ['config.ini', 'conf.d/*.ini']
+    else:
+        config_file_parser_class = configargparse.YAMLConfigFileParser
+        default_config_files = [
+            'config.yaml', 'conf.d/*.yaml',
+            'config.yml', 'conf.d/*.yml'
+        ]  # 可以设置更多路径
+
+    port = 3306
+    half_cpus = psutil.cpu_count() // 2
+    threads = half_cpus if half_cpus > 4 else 3
+
     parser = configargparse.ArgumentParser(
         description='Parse Args', add_help=False,
         formatter_class=configargparse.ArgumentDefaultsHelpFormatter,
-        config_file_parser_class=configargparse.YAMLConfigFileParser,
-        default_config_files=['config.yaml', 'conf.d/*.yaml'],  # 可以设置更多路径
+        config_file_parser_class=config_file_parser_class,
+        default_config_files=default_config_files
     )
     parser.add_argument('--help', dest='help', action='store_true', default=False,
                         help='help information')
     parser.add_argument('-sc', '--script-config', is_config_file=True,
                         help='script config file path')
-
-    port = 3306
 
     connect_setting = parser.add_argument_group('connect setting')
     connect_setting.add_argument('-h', '--host', env_var='MYSQL_HOST', dest='host',
@@ -92,9 +105,6 @@ def parse_mysql_args():
                         help='If set tool to xbk and xtrabackup_checkpoints file exists in history dir, '
                              'we will start incremental backup from last backup history. '
                              'Otherwise, we start a full backup')
-
-    half_cpus = psutil.cpu_count() // 2
-    threads = half_cpus if half_cpus > 4 else 3
 
     backup.add_argument('--just-insert', dest='just_insert', action='store_true', default=False,
                         help='Use for mysqldump and mysqlpump.')
@@ -275,7 +285,12 @@ def check_hung(args):
 
 
 def check_command(command):
-    resp = delegator.run(f'which {command}')
+    if platform.system() == "Windows":
+        c_command = f'where {command}'
+    else:
+        c_command = f'which {command}'
+
+    resp = delegator.run(c_command)
     if resp.return_code != 0:
         logger.error(f'Could not find command: {command}')
         sys.exit(1)
@@ -288,11 +303,15 @@ def pre_backup(args):
     check_command('lz4')
 
     # check backup process if exists
-    command = f'''
-        ps -ef | grep -v grep | grep -E '{args.tool.name} \\-\\-host {args.host} \\-\\-port {args.port}'
-    '''.replace('  ', ' ').replace('\n', '')
+    program = f"{args.tool.name} \\-\\-host {args.host} \\-\\-port {args.port}"
+    if platform.system() == "Windows":
+        command = f"tasklist -v | findstr %{program}%"
+    else:
+        command = f"ps -ef | grep -v grep | grep -E '{program}"
+
     if args.debug:
         logger.debug(command)
+
     resp = delegator.run(command)
     if resp.return_code == 0:
         logger.error(f'Another backup process is running: {resp.out}')
