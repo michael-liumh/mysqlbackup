@@ -3,6 +3,7 @@ A script for starting backup quickly so that you don't need to set backup args, 
 
 # usage
 Download the executable release from [release](https://github.com/michael-liumh/mysqlbackup/releases), such as linux-executable
+
 Tip: the release is generally by pyapp
 
 ## linux
