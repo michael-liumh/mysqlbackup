@@ -299,12 +299,12 @@ def check_command(command):
 
 def pre_backup(args):
     # check command
-    check_command(args.tool.name)
+    check_command(args.tool)
     check_command('lz4')
 
     # check backup process if exists
     connect_args = get_connect_args(args)
-    program = command = f'{args.tool.name} {connect_args} {args.extra}'
+    program = command = f'{args.tool} {connect_args} {args.extra}'
     if platform.system() == "Windows":
         command = f"tasklist -v | findstr %{program}%"
     else:
@@ -409,7 +409,7 @@ def process_backup(args):
     logger.info(f'Result save into: {args.backup_file}')
 
     connect_args = get_connect_args(args)
-    command = f'{args.tool.name} {connect_args} {args.extra}'
+    command = f'{args.tool} {connect_args} {args.extra}'
 
     tmp_dir = args.backup_dir.absolute() / 'tmp'
     if args.tool.name in ['mydumper', 'xtrabackup']:
